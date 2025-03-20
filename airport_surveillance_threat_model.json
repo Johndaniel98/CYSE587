@@ -1,0 +1,411 @@
+{
+  "version": "1.3.0",
+  "summary": {
+    "title": "Airport Surveillance System Threat Model",
+    "owner": "xAI",
+    "description": "Threat model for an IoT-based airport surveillance system using Raspberry Pis, MQTT (Eclipse Mosquitto), RTSP, and a web application for monitoring and controlling cameras."
+  },
+  "detail": {
+    "contributors": [],
+    "diagrams": [
+      {
+        "title": "Level 1 DFD - Airport Surveillance System",
+        "thumbnail": "./public/content/images/thumbnail.jpg",
+        "id": 1,
+        "diagramJson": {
+          "cells": [
+            // External Entity: Authorized User
+            {
+              "id": "1",
+              "type": "tm.Actor",
+              "position": { "x": 50, "y": 50 },
+              "size": { "width": 160, "height": 80 },
+              "attrs": {
+                "text": { "text": "Authorized User" }
+              },
+              "description": "Airport security officers or administrators who interact with the system via a web browser to monitor live footage, control camera angles, and receive alerts.",
+              "outOfScope": false
+            },
+            // Process: Web Application
+            {
+              "id": "2",
+              "type": "tm.Process",
+              "position": { "x": 300, "y": 50 },
+              "size": { "width": 160, "height": 80 },
+              "attrs": {
+                "text": { "text": "Web Application" }
+              },
+              "description": "A web-based interface hosted on the Raspberry Pi 4B, displaying live RTSP video streams and allowing users to send camera control commands via MQTT.",
+              "outOfScope": false
+            },
+            // Process: MQTT Broker
+            {
+              "id": "3",
+              "type": "tm.Process",
+              "position": { "x": 300, "y": 200 },
+              "size": { "width": 160, "height": 80 },
+              "attrs": {
+                "text": { "text": "MQTT Broker" }
+              },
+              "description": "Mosquitto MQTT broker running on the Raspberry Pi 4B, facilitating publish/subscribe messaging between the web application and camera nodes.",
+              "outOfScope": false
+            },
+            // Process: Raspberry Pi Zero 2 W (Camera Node)
+            {
+              "id": "4",
+              "type": "tm.Process",
+              "position": { "x": 500, "y": 200 },
+              "size": { "width": 160, "height": 80 },
+              "attrs": {
+                "text": { "text": "Raspberry Pi Zero 2 W" }
+              },
+              "description": "A single-board computer within each camera node, running Motion for video streaming (RTSP) and acting as an MQTT subscriber.",
+              "outOfScope": false
+            },
+            // Process: Arduino Nano (Camera Node)
+            {
+              "id": "5",
+              "type": "tm.Process",
+              "position": { "x": 700, "y": 200 },
+              "size": { "width": 160, "height": 80 },
+              "attrs": {
+                "text": { "text": "Arduino Nano" }
+              },
+              "description": "A microcontroller within each camera node, controlling the servo motors based on commands from the Raspberry Pi Zero 2 W.",
+              "outOfScope": false
+            },
+            // Process: Servo Motors (Camera Node)
+            {
+              "id": "6",
+              "type": "tm.Process",
+              "position": { "x": 900, "y": 200 },
+              "size": { "width": 160, "height": 80 },
+              "attrs": {
+                "text": { "text": "Servo Motors" }
+              },
+              "description": "Mechanical components within each camera node, enabling pan and tilt functionality for the cameras.",
+              "outOfScope": false
+            },
+            // Process: Camera (Camera Node)
+            {
+              "id": "7",
+              "type": "tm.Process",
+              "position": { "x": 500, "y": 350 },
+              "size": { "width": 160, "height": 80 },
+              "attrs": {
+                "text": { "text": "Camera" }
+              },
+              "description": "Raspberry Pi camera module capturing live video streamed via RTSP.",
+              "outOfScope": false
+            },
+            // Data Store: Recorded Footage Store
+            {
+              "id": "8",
+              "type": "tm.Store",
+              "position": { "x": 300, "y": 350 },
+              "size": { "width": 160, "height": 80 },
+              "attrs": {
+                "text": { "text": "Recorded Footage Store" }
+              },
+              "description": "Stores recorded video footage from the camera nodes, managed by the Motion application on the Raspberry Pi 4B.",
+              "outOfScope": false
+            },
+            // Data Flow: User Input
+            {
+              "id": "9",
+              "type": "tm.Flow",
+              "source": { "id": "1" },
+              "target": { "id": "2" },
+              "attrs": {
+                "text": { "text": "User Input: Camera Commands / Video Feed & Alerts" }
+              },
+              "description": "Commands from the Authorized User to the Web Application (e.g., adjust camera angle, view live feed), and responses (video feeds and alerts) sent back."
+            },
+            // Data Flow: MQTT Publish
+            {
+              "id": "10",
+              "type": "tm.Flow",
+              "source": { "id": "2" },
+              "target": { "id": "3" },
+              "attrs": {
+                "text": { "text": "MQTT Publish: Camera Control Commands" }
+              },
+              "description": "Camera control commands published by the Web Application to the MQTT Broker."
+            },
+            // Data Flow: MQTT Subscribe
+            {
+              "id": "11",
+              "type": "tm.Flow",
+              "source": { "id": "3" },
+              "target": { "id": "4" },
+              "attrs": {
+                "text": { "text": "MQTT Subscribe: Camera Commands" }
+              },
+              "description": "Commands forwarded by the MQTT Broker to the Raspberry Pi Zero 2 W in each Camera Node."
+            },
+            // Data Flow: RTSP Video Stream
+            {
+              "id": "12",
+              "type": "tm.Flow",
+              "source": { "id": "7" },
+              "target": { "id": "2" },
+              "attrs": {
+                "text": { "text": "RTSP Video Stream" }
+              },
+              "description": "Live video data streamed from the Camera to the Web Application using the RTSP protocol."
+            },
+            // Data Flow: Serial Commands
+            {
+              "id": "13",
+              "type": "tm.Flow",
+              "source": { "id": "4" },
+              "target": { "id": "5" },
+              "attrs": {
+                "text": { "text": "Serial Commands: Motor Control" }
+              },
+              "description": "Commands sent from the Raspberry Pi Zero 2 W to the Arduino Nano to adjust the Servo Motors’ positions."
+            },
+            // Data Flow: Motor Control Signals
+            {
+              "id": "14",
+              "type": "tm.Flow",
+              "source": { "id": "5" },
+              "target": { "id": "6" },
+              "attrs": {
+                "text": { "text": "Motor Control Signals" }
+              },
+              "description": "Signals from the Arduino Nano to the Servo Motors to execute pan/tilt movements."
+            },
+            // Data Flow: Video Recording Data
+            {
+              "id": "15",
+              "type": "tm.Flow",
+              "source": { "id": "7" },
+              "target": { "id": "8" },
+              "attrs": {
+                "text": { "text": "Video Recording Data" }
+              },
+              "description": "Recorded video footage sent from the Camera to the Recorded Footage Store."
+            },
+            // Data Flow: Video Retrieval
+            {
+              "id": "16",
+              "type": "tm.Flow",
+              "source": { "id": "2" },
+              "target": { "id": "8" },
+              "attrs": {
+                "text": { "text": "Video Retrieval Request / Recorded Footage" }
+              },
+              "description": "Requests from the Web Application to the Recorded Footage Store for historical footage, and the corresponding video data returned."
+            },
+            // Trust Boundary: Private Network
+            {
+              "id": "17",
+              "type": "tm.Boundary",
+              "position": { "x": 200, "y": 0 },
+              "size": { "width": 900, "height": 500 },
+              "attrs": {
+                "text": { "text": "Private Network" }
+              },
+              "description": "An air-gapped internal network containing all system components, isolated from the public internet."
+            }
+          ]
+        },
+        "threats": [
+          // Spoofing Threat: Spoofing MQTT Client Identity
+          {
+            "id": "t1",
+            "title": "Spoofing MQTT Client Identity",
+            "type": "Spoofing",
+            "description": "An attacker with access to the private network spoofs the identity of a legitimate MQTT client by crafting MQTT CONNECT packets with a stolen client ID, allowing unauthorized control of camera nodes via the Eclipse Mosquitto broker. Likelihood: High (Discoverability: 7, Exploitability: 9, Awareness: 8, Intrusion Detection: 7). CAPEC-151, CWE-290, CVE-2017-7652.",
+            "status": "Open",
+            "severity": "High",
+            "mitigation": "Enable client ID validation in Mosquitto, use SSL/TLS with client certificates, and enforce authentication.",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "3" }, // MQTT Broker
+              { "elementId": "4" }, // Raspberry Pi Zero 2 W
+              { "elementId": "10" }, // MQTT Publish
+              { "elementId": "11" }  // MQTT Subscribe
+            ]
+          },
+          // Tampering Threat: Malware Injection via MQTT
+          {
+            "id": "t2",
+            "title": "Malware Injection via MQTT",
+            "type": "Tampering",
+            "description": "An attacker exploits the lack of nonrepudiation mechanisms in MQTT to impersonate a legitimate publisher, injecting malware into the Raspberry Pi Zero 2 W via MQTT Subscribe, potentially compromising the entire camera node. Likelihood: Medium (Discoverability: 6, Exploitability: 9, Awareness: 8, Intrusion Detection: 7). CAPEC-94, CWE-602, CVE-2018-12546.",
+            "status": "Open",
+            "severity": "Medium",
+            "mitigation": "Configure the MQTT broker to require digital signatures for all messages.",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "3" }, // MQTT Broker
+              { "elementId": "4" }, // Raspberry Pi Zero 2 W
+              { "elementId": "11" }  // MQTT Subscribe
+            ]
+          },
+          // Tampering Threat: Tampering with RTSP Video Stream
+          {
+            "id": "t3",
+            "title": "Tampering with RTSP Video Stream",
+            "type": "Tampering",
+            "description": "An attacker intercepts and modifies the RTSP video stream between the Camera and Web Application, injecting false video data to deceive users. Likelihood: Medium (Discoverability: 6, Exploitability: 9, Awareness: 8, Intrusion Detection: 9). CAPEC-148, CWE-319, CVE-2019-3923.",
+            "status": "Open",
+            "severity": "Medium",
+            "mitigation": "Enable SSL/TLS for RTSP streams and implement integrity checks.",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "2" }, // Web Application
+              { "elementId": "4" }, // Raspberry Pi Zero 2 W
+              { "elementId": "7" }, // Camera
+              { "elementId": "12" }  // RTSP Video Stream
+            ]
+          },
+          // Repudiation Threat: Denial of Unauthorized Web Application Access
+          {
+            "id": "t4",
+            "title": "Denial of Unauthorized Web Application Access",
+            "type": "Repudiation",
+            "description": "An attacker with stolen credentials accesses the Web Application, performs malicious actions, and denies responsibility due to insufficient logging. Likelihood: Medium (Discoverability: 5, Exploitability: 9, Awareness: 8, Intrusion Detection: 7). CAPEC-65, CWE-778, CVE-2021-3156.",
+            "status": "Open",
+            "severity": "Low",
+            "mitigation": "Implement robust logging and session management.",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "2" }, // Web Application
+              { "elementId": "9" }  // User Input
+            ]
+          },
+          // Repudiation Threat: Denial of Malicious MQTT Actions
+          {
+            "id": "t5",
+            "title": "Denial of Malicious MQTT Actions",
+            "type": "Repudiation",
+            "description": "An attacker sends unauthorized MQTT commands and denies responsibility due to the lack of nonrepudiation and logging, making it difficult to trace the source of the attack. Likelihood: Medium (Discoverability: 6, Exploitability: 9, Awareness: 8, Intrusion Detection: 7). CAPEC-93, CWE-778, CVE-2018-12546.",
+            "status": "Open",
+            "severity": "Low",
+            "mitigation": "Implement comprehensive logging and nonrepudiation mechanisms (e.g., digital signatures).",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "3" }, // MQTT Broker
+              { "elementId": "10" }, // MQTT Publish
+              { "elementId": "11" }  // MQTT Subscribe
+            ]
+          },
+          // Information Disclosure Threat: Unauthorized Video Stream Access
+          {
+            "id": "t6",
+            "title": "Unauthorized Video Stream Access",
+            "type": "Information Disclosure",
+            "description": "An attacker exploits the disabled stream authentication in the Motion application, accessing RTSP Video Streams to view live footage without authorization. Likelihood: Medium (Discoverability: 6, Exploitability: 9, Awareness: 8, Intrusion Detection: 7). CAPEC-118, CWE-200, CVE-2019-3923.",
+            "status": "Open",
+            "severity": "Medium",
+            "mitigation": "Enable stream authentication in the Motion application and use SSL/TLS encryption.",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "2" }, // Web Application
+              { "elementId": "4" }, // Raspberry Pi Zero 2 W
+              { "elementId": "7" }, // Camera
+              { "elementId": "12" }  // RTSP Video Stream
+            ]
+          },
+          // Information Disclosure Threat: Sniffing MQTT Cleartext Transmissions
+          {
+            "id": "t7",
+            "title": "Sniffing MQTT Cleartext Transmissions",
+            "type": "Information Disclosure",
+            "description": "An attacker monitors MQTT traffic in cleartext using a sniffer, exposing camera control commands and topic structures. Likelihood: High (Discoverability: 6, Exploitability: 9, Awareness: 8, Intrusion Detection: 9). CAPEC-117, CWE-319, CVE-2018-12546.",
+            "status": "Open",
+            "severity": "High",
+            "mitigation": "Enable SSL/TLS encryption for MQTT.",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "3" }, // MQTT Broker
+              { "elementId": "10" }, // MQTT Publish
+              { "elementId": "11" }  // MQTT Subscribe
+            ]
+          },
+          // Denial of Service Threat: DDoS Attack on Raspberry Pi 4B
+          {
+            "id": "t8",
+            "title": "DDoS Attack on Raspberry Pi 4B",
+            "type": "Denial of Service",
+            "description": "An attacker launches a Distributed Denial of Service (DDoS) attack, overwhelming the Raspberry Pi 4B’s limited bandwidth, causing the MQTT Broker and Web Application to become unavailable. Likelihood: Medium (Discoverability: 7, Exploitability: 9, Awareness: 9, Intrusion Detection: 0). CAPEC-125, CWE-400, CVE-2020-13526.",
+            "status": "Open",
+            "severity": "Medium",
+            "mitigation": "Implement rate-limiting, traffic filtering, and network redundancy.",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "2" }, // Web Application
+              { "elementId": "3" }, // MQTT Broker
+              { "elementId": "10" }, // MQTT Publish
+              { "elementId": "12" }  // RTSP Video Stream
+            ]
+          },
+          // Denial of Service Threat: Physical Tampering with Servo Motors
+          {
+            "id": "t9",
+            "title": "Physical Tampering with Servo Motors",
+            "type": "Denial of Service",
+            "description": "A malicious insider physically damages the Servo Motors, disrupting their ability to adjust camera angles and creating blind spots in surveillance coverage. Likelihood: Medium (Discoverability: 8, Exploitability: 9, Awareness: 8, Intrusion Detection: 5). CAPEC-548, CWE-1263, N/A (Physical Threat).",
+            "status": "Open",
+            "severity": "Medium",
+            "mitigation": "Install tamper-proof enclosures and restrict physical access.",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "4" }, // Raspberry Pi Zero 2 W
+              { "elementId": "5" }, // Arduino Nano
+              { "elementId": "6" }, // Servo Motors
+              { "elementId": "14" }  // Motor Control Signals
+            ]
+          },
+          // Denial of Service Threat: Overloading Raspberry Pi Zero 2 W Memory
+          {
+            "id": "t10",
+            "title": "Overloading Raspberry Pi Zero 2 W Memory",
+            "type": "Denial of Service",
+            "description": "An attacker floods the Raspberry Pi Zero 2 W with large MQTT messages, causing a memory overload and system crash. Likelihood: Medium (Discoverability: 5, Exploitability: 9, Awareness: 8, Intrusion Detection: 5). CAPEC-125, CWE-400, CVE-2020-13526.",
+            "status": "Open",
+            "severity": "Medium",
+            "mitigation": "Implement message size limits and rate-limiting in the MQTT broker.",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "4" }, // Raspberry Pi Zero 2 W
+              { "elementId": "11" }  // MQTT Subscribe
+            ]
+          },
+          // Elevation of Privilege Threat: Remote Code Execution via Motion
+          {
+            "id": "t11",
+            "title": "Remote Code Execution via Motion",
+            "type": "Elevation of Privilege",
+            "description": "An attacker exploits the enabled remote control port in the Motion application to execute code with user privileges on the Raspberry Pi Zero 2 W, potentially escalating to higher access levels. Likelihood: High (Discoverability: 9, Exploitability: 9, Awareness: 8, Intrusion Detection: 5). CAPEC-233, CWE-250, CVE-2021-3156.",
+            "status": "Open",
+            "severity": "High",
+            "mitigation": "Disable the remote control port and harden the operating system.",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "4" }, // Raspberry Pi Zero 2 W
+              { "elementId": "12" }  // RTSP Video Stream
+            ]
+          },
+          // Elevation of Privilege Threat: Privilege Escalation via Raspberry Pi OS
+          {
+            "id": "t12",
+            "title": "Privilege Escalation via Raspberry Pi OS",
+            "type": "Elevation of Privilege",
+            "description": "An attacker with initial access exploits Raspberry Pi OS vulnerabilities to escalate privileges, gaining full control of the device. Likelihood: High (Discoverability: 8, Exploitability: 9, Awareness: 8, Intrusion Detection: 5). CAPEC-233, CWE-250, CVE-2021-3156.",
+            "status": "Open",
+            "severity": "High",
+            "mitigation": "Harden the OS, remove default credentials, and apply patches.",
+            "modelType": "STRIDE",
+            "elements": [
+              { "elementId": "4" }  // Raspberry Pi Zero 2 W
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
